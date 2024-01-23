@@ -1,5 +1,10 @@
+# SPDX-License-Identifier: AGPL-3.0
+#
 # Maintainer: Sébastien Luttringer <seblu@seblu.net>
+# Contributor: Pellegrino Prevete (dvorak) <pellegrinoprevete@gmail.com>
+# Contributor: Truocolo <truocolo@aol.com>
 
+_checks="false"
 pkgname=wayland-protocols
 pkgver=1.32
 pkgrel=1
@@ -28,18 +33,41 @@ prepare() {
 }
 
 build() {
-  meson build $pkgname-$pkgver --buildtype=release --prefix=/usr
-  ninja -C build
+  local \
+    _meson_opts=()
+  _meson_opts=(
+    -D tests="${_checks}"
+  )
+  meson \
+    build \
+      $pkgname-$pkgver \
+      --buildtype=release \
+      --prefix=/usr \
+      "${_meson_opts[@]}"
+  ninja \
+    -C \
+      build
 }
 
 check() {
-  ninja -C build test
+  ninja \
+    -C \
+      build \
+    test
 }
 
 package() {
-  DESTDIR="$pkgdir" ninja -C build install
+  DESTDIR="$pkgdir" \
+    ninja \
+    -C \
+      build \
+    install
   set -x
-  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m 644 "$pkgname-$pkgver/COPYING"
+  install \
+    -Dt \
+    "$pkgdir/usr/share/licenses/$pkgname" \
+    -m 644 \
+    "$pkgname-$pkgver/COPYING"
 }
 
-# vim:set ts=2 sw=2 et:
+# vim:set sw=2 sts=-1 et:
