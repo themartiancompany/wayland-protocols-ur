@@ -5,42 +5,71 @@
 # Contributor: Truocolo <truocolo@aol.com>
 
 _checks="false"
-pkgname=wayland-protocols
-pkgver=1.32
+_proj="wayland"
+_pkg="${_proj}-protocols"
+pkgname="${_pkg}"
+pkgver=1.38
 pkgrel=1
 pkgdesc='Specifications of extended Wayland protocols'
-arch=('any')
-url='https://wayland.freedesktop.org/'
-license=('MIT')
-makedepends=('wayland' 'meson' 'ninja')
-validpgpkeys=('8307C0A224BABDA1BABD0EB9A6EEEC9E0136164A'  # Jonas Ådahl
-              'A66D805F7C9329B4C5D82767CCC4F07FAC641EFF') # Daniel Stone
-source=("https://gitlab.freedesktop.org/wayland/$pkgname/-/releases/$pkgver/downloads/$pkgname-$pkgver.tar.xz"{,.sig})
-sha256sums=('7459799d340c8296b695ef857c07ddef24c5a09b09ab6a74f7b92640d2b1ba11'
-            'SKIP')
+arch=(
+  'any'
+)
+url="https://${_proj}.freedesktop.org"
+license=(
+  'MIT'
+)
+makedepends=(
+  "${_proj}"
+  'meson'
+  'ninja'
+)
+provides=(
+  "lib${_pkg}=${pkgver}"
+)
+conflicts=(
+  "lib${_pkg}"
+)
+validpgpkeys=(
+  '8307C0A224BABDA1BABD0EB9A6EEEC9E0136164A'  # Jonas Ådahl
+  'A66D805F7C9329B4C5D82767CCC4F07FAC641EFF') # Daniel Stone
+_freedesktop="https://gitlab.freedesktop.org"
+_http="${_freedesktop}"
+_ns="${_proj}"
+_url="${_http}/${_ns}/${_pkg}"
+source=(
+  "${_url}/-/releases/${pkgver}/downloads/${_pkg}-${pkgver}.tar.xz"{,.sig}
+)
+sha256sums=(
+  'ff17292c05159d2b20ce6cacfe42d7e31a28198fa1429a769b03af7c38581dbe'
+  'SKIP'
+)
 
 prepare() {
-  cd $pkgname-$pkgver
+  local \
+    _src
+  cd \
+    "${_pkg}-${pkgver}"
   # apply patch from the source array (should be a pacman feature)
-  local src
-  for src in "${source[@]}"; do
-    src="${src%%::*}"
-    src="${src##*/}"
-    [[ $src = *.patch ]] || continue
+  for _src in "${source[@]}"; do
+    _src="${_src%%::*}"
+    _src="${_src##*/}"
+    [[ "${src}" = *.patch ]] || continue
     echo "Applying patch $src..."
-    patch -Np1 < "../$src"
+    patch \
+      -Np1 < \
+      "../${src}"
   done
 }
 
 build() {
   local \
     _meson_opts=()
-  _meson_opts=(
+  _meson_opts+=(
     -D tests="${_checks}"
   )
   meson \
     build \
-      $pkgname-$pkgver \
+      "${_pkg}-${pkgver}" \
       --buildtype=release \
       --prefix=/usr \
       "${_meson_opts[@]}"
@@ -65,9 +94,9 @@ package() {
   set -x
   install \
     -Dt \
-    "$pkgdir/usr/share/licenses/$pkgname" \
+    "${pkgdir}/usr/share/licenses/${_pkg}" \
     -m 644 \
-    "$pkgname-$pkgver/COPYING"
+    "${_pkg}-${pkgver}/COPYING"
 }
 
 # vim:set sw=2 sts=-1 et:
